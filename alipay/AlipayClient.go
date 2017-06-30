@@ -30,7 +30,25 @@ type AlipayClient struct {
   charset                 string
 }
 
-func NewDefaultAlipayClient(serverUrl, appId, privateKey, alipayPublicKey string) *AlipayClient {
+type SignType int
+
+const (
+	RSA SignType = iota
+	RSA2
+)
+
+func NewDefaultAlipayClient(serverUrl, appId, privateKey, alipayPublicKey string, tp SignType) *AlipayClient {
+  var signType string
+	switch tp {
+	case RSA:
+		signType = CONST_SIGN_TYPE_RSA
+	case RSA2:
+		signType = CONST_SIGN_TYPE_RSA2
+	default:
+		signType = CONST_SIGN_TYPE_RSA2
+	}
+	utils.SetHash(signType)
+
   return &AlipayClient{
     serverUrl: serverUrl,
     appId: appId,
