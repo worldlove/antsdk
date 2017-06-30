@@ -4,11 +4,9 @@ import (
   "sort"
   "encoding/pem"
   "encoding/base64"
-  "encoding/hex"
   "crypto"
   "crypto/x509"
   "crypto/rsa"
-  "crypto/sha1"
   "errors"
   "net/url"
   "io"
@@ -16,6 +14,16 @@ import (
   "os"
   "fmt"
 )
+var hash crypto.Hash
+
+func SetHash(t string) {
+	switch t {
+	case "RSA":
+		hash = crypto.SHA1
+	case "RSA2":
+		hash = crypto.SHA256
+	}
+}
 
 func GetSignMap(requestHolder *RequestParametersHolder) map[string]string {
   singleMap := make(map[string]string)
@@ -85,11 +93,11 @@ func Sign(mReq map[string]string, privateKey []byte) (string, error) {
 }
 
 func RSASign(origData string, privateKey *rsa.PrivateKey) (string, error) {
-  h := sha1.New()
+  h := hash.New()
   h.Write([]byte(origData))
   digest := h.Sum(nil)
 
-  s, err := rsa.SignPKCS1v15(nil, privateKey, crypto.SHA1, []byte(digest))
+  s, err := rsa.SignPKCS1v15(nil, privateKey, hash, []byte(digest))
   if err != nil {
       return "", err
   }
@@ -136,18 +144,17 @@ func RSAVerify(src, sign, alipayPublicKey []byte) (bool, error) {
   }
   rsaPub, _ := pub.(*rsa.PublicKey)
 
-  // 计算代签名字串的SHA1哈希
-  t := sha1.New()
+  // 计算代签名字串的哈希
+  t := hash.New()
   io.WriteString(t, string(src))
   digest := t.Sum(nil)
 
   // base64 decode,必须步骤，支付宝对返回的签名做过base64 encode必须要反过来decode才能通过验证
   data, _ := base64.StdEncoding.DecodeString(string(sign))
 
-  hex.EncodeToString(data)
 
   // 调用rsa包的VerifyPKCS1v15验证签名有效性
-  err = rsa.VerifyPKCS1v15(rsaPub, crypto.SHA1, digest, data)
+  err = rsa.VerifyPKCS1v15(rsaPub, hash, digest, data)
   if err != nil {
     fmt.Println(string(src))
     fmt.Println("error")
