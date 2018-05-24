@@ -17,7 +17,9 @@ import (
 )
 
 func main() {
-    client := alipay.NewDefaultAlipayClient("https://openapi.alipay.com/gateway.do", "商户AppId", "商户密钥", "支付宝公钥", alipay.RSA/alipay.RSA2(配置加密类型，默认RSA2))
+    client := alipay.NewDefaultAlipayClient("https://openapi.alipay.com/gateway.do", "商户AppId", "商户密钥", "支付宝公钥")
+    // 设置加密类型为RSA2， 默认是RSA
+    client.SetHash(alipay.CONST_SIGN_TYPE_RSA2)
     // 创建请求
     request := &trade.AlipayTradeQueryRequest{}
     // 设置参数

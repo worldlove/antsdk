@@ -30,25 +30,7 @@ type AlipayClient struct {
   charset                 string
 }
 
-type SignType int
-
-const (
-	RSA SignType = iota
-	RSA2
-)
-
-func NewDefaultAlipayClient(serverUrl, appId, privateKey, alipayPublicKey string, tp SignType) *AlipayClient {
-  var signType string
-	switch tp {
-	case RSA:
-		signType = CONST_SIGN_TYPE_RSA
-	case RSA2:
-		signType = CONST_SIGN_TYPE_RSA2
-	default:
-		signType = CONST_SIGN_TYPE_RSA2
-	}
-	utils.SetHash(signType)
-
+func NewDefaultAlipayClient(serverUrl, appId, privateKey, alipayPublicKey string) *AlipayClient {
   return &AlipayClient{
     serverUrl: serverUrl,
     appId: appId,
@@ -59,6 +41,21 @@ func NewDefaultAlipayClient(serverUrl, appId, privateKey, alipayPublicKey string
     encryptType: CONST_ENCRYPT_TYPE_AES,
   }
 }
+func (this *AlipayClient) SetHash(hash string) error{
+  switch (hash) {
+  case CONST_SIGN_TYPE_RSA2:
+    this.signType = CONST_SIGN_TYPE_RSA2
+    utils.SetHash(CONST_SIGN_TYPE_RSA2)
+    return nil
+  case CONST_SIGN_TYPE_RSA:
+    this.signType = CONST_SIGN_TYPE_RSA
+    utils.SetHash(CONST_SIGN_TYPE_RSA)
+    return nil
+  default:
+    return errors.New("Must be RSA or RSA2")
+  }
+}
+
 
 func (this *AlipayClient) Execute(request, response interface{}) error {
   return this.ExecuteWithAccessToken(request, response, "")
