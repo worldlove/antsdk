@@ -1,3 +1,7 @@
+# 注意 注意 注意
+# 该支付宝SDK为支付宝老版本，现在已无法使用
+# 无法使用，大家不要耽误时间
+
 # antsdk
 蚂蚁金服(支付宝)开放平台 go-sdk
 支付宝API文档:[传送门](https://doc.open.alipay.com/doc2/apiList?docType=4)
